@@ -12,7 +12,7 @@ goals:
 
 ## Installation
 ```sh
-npm install ts-parsec
+npm install @spakhm/ts-parsec
 ```
 
 ## Example
