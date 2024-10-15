@@ -160,3 +160,5 @@ export function binopr<O, D, N>(
     return p(source);
   });
 }
+
+export const noop = toParser((_: stream) => ok(true));
