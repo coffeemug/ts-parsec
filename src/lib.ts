@@ -162,3 +162,19 @@ export function binopr<O, D, N>(
 }
 
 export const noop = toParser((_: stream) => ok(true));
+
+export const not = <T>(p: parserlike<T>) => toParser((source: stream) => {
+  const res = toParser(p)(source);
+  if (res.type == 'ok') {
+    return err(0, 0, "");
+  } else {
+    return ok(null);
+  }
+});
+
+export const peek = <T>(p: parserlike<T>) => toParser((source: stream) => {
+  source.push();
+  const res = toParser(p)(source);
+  source.pop_rollback();
+  return res;
+});
