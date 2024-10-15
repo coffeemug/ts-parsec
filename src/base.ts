@@ -62,9 +62,17 @@ export const str = <T extends string>(match: T): parser<T> =>
     return ok(match);
   }));
 
-export const lex = <T>(p: parserlike<T>) => keepWs((source: stream) => {
-  ws(source);
-  return toParser(p)(source);
+export const lex = <T>(p: parserlike<T>) => toParser((source: stream) => {
+  if (!source.drop_ws) {
+    // this call to lex is nested (i.e. we're in lex mode already)
+    // don't drop more whitespace
+    return toParser(p)(source);
+  } else {
+    return keepWs((source: stream) => {
+      ws(source);
+      return toParser(p)(source);
+    })(source);
+  }
 });
 
 export const keepWs = <T>(p: parserlike<T>) =>
