@@ -1,5 +1,6 @@
 
-This is a parser combinator library written in typescript. Design
+This is a parser combinator library written in typescript. You can
+find a writeup about it [here](https://www.spakhm.com/ts-parsec). Design
 goals:
 
 - Produces recursive descent parsers capable of parsing PEG grammars.
