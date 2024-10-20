@@ -178,3 +178,8 @@ export const peek = <T>(p: parserlike<T>) => toParser((source: stream) => {
   source.pop_rollback();
   return res;
 });
+
+export const anych = toParser((source: stream) => {
+  const res = source.next()
+  return res ? ok(res) : err(0, 0, "");
+});

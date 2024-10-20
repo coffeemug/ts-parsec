@@ -1,5 +1,5 @@
 import { ok, str } from '../src/base';
-import { nat, either, many, seq, some, alnum, sepBy, maybe, int } from '../src/lib';
+import { nat, either, many, seq, some, alnum, sepBy, maybe, int, anych } from '../src/lib';
 import { fromString } from '../src/stream';
 
 it('', () => {
@@ -63,4 +63,9 @@ it('', () => {
   expect(int(fromString('+12'))).toEqual(ok(12));
   expect(int(fromString('- 12'))).toEqual(ok(-12));
   expect(int(fromString('+ 12'))).toEqual(ok(12));
+});
+
+it('', () => {
+  expect(anych(fromString('12'))).toEqual(ok('1'));
+  expect(anych(fromString('!!!'))).toEqual(ok('!'));
 });
