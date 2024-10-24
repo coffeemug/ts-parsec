@@ -1,4 +1,4 @@
-import { ok, str } from '../src/base';
+import { ok, err, str } from '../src/base';
 import { nat, either, many, seq, some, alnum, sepBy, maybe, int, anych } from '../src/lib';
 import { fromString } from '../src/stream';
 
@@ -66,6 +66,7 @@ it('', () => {
 });
 
 it('', () => {
-  expect(anych(fromString('12'))).toEqual(ok('1'));
-  expect(anych(fromString('!!!'))).toEqual(ok('!'));
+  expect(anych()(fromString('12'))).toEqual(ok('1'));
+  expect(anych()(fromString('!!!'))).toEqual(ok('!'));
+  expect(anych({ but: '!' })(fromString('!!!'))).toEqual(err(0, 0, ''));
 });

@@ -179,7 +179,13 @@ export const peek = <T>(p: parserlike<T>) => toParser((source: stream) => {
   return res;
 });
 
-export const anych = toParser((source: stream) => {
+export const anych = (opts?: { but: parserlike<unknown> }) => toParser((source: stream) => {
+  if (opts?.but) {
+    const res = peek(opts.but)(source);
+    if (res.type == 'ok') {
+      return err(0, 0, "");
+    }
+  }
   const res = source.next()
   return res ? ok(res) : err(0, 0, "");
 });
