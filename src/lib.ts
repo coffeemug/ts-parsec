@@ -196,3 +196,5 @@ export const anych = (opts?: { but: parserlike<unknown> }) => toParser((source: 
   const res = source.next()
   return res ? ok(res) : err(0, 0, "");
 });
+
+export const eof = not(anych());
