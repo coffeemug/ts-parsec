@@ -97,7 +97,7 @@ export const upper = range('A', 'Z');
 export const alpha = either(lower, upper);
 export const alnum = either(alpha, digit);
 
-export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, allowTrailingSep: boolean = true): parser<T[]> =>
+export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' = 'allow'): parser<T[]> =>
   toParser((source: stream) => {
     const res: T[] = [];
 
@@ -111,16 +111,23 @@ export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, allowTraili
     while (true) {
       const sepres_ = attempt(sep)(source);
       if (sepres_.type == 'err') {
-        return ok(res);
+        return trailingSep === 'require' ? err(0, 0, '') : ok(res);
       }
-  
+
       const res_ = attempt(item)(source);
       if (res_.type == 'err') {
-        return allowTrailingSep ? ok(res) : err(0, 0, '');
+        return trailingSep === 'forbid' ? err(0, 0, '') : ok(res);
       } else {
         res.push(res_.res);
       }
     }
+  });
+
+export const sepBy1 = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' = 'allow'): parser<T[]> =>
+  toParser((source: stream) => {
+    const res = sepBy(item, sep, trailingSep)(source);
+    if (res.type == 'err') return res;
+    return res.res.length >= 1 ? res : err(0, 0, '');
   });
 
 export function binop<O, D, N>(
