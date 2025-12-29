@@ -9,10 +9,10 @@ it('', () => {
 });
 
 it('', () => {
-  expect(nat(fromString('171hello'))).toEqual(ok(171));
+  expect(nat(fromString('171hello'))).toEqual(ok(171n));
   expect(str('171')(fromString('171hello'))).toEqual(ok('171'));
 
-  expect(either(nat, '171')(fromString('171hello'))).toEqual(ok(171));
+  expect(either(nat, '171')(fromString('171hello'))).toEqual(ok(171n));
   expect(either('171', nat)(fromString('171hello'))).toEqual(ok("171"));
 
   expect(either(nat, str('hi'))(fromString('hi'))).toEqual(ok('hi'));
@@ -47,9 +47,9 @@ it('', () => {
 
 it('', () => {
   expect(sepBy(nat, ',')(fromString(""))).toEqual(ok([]));
-  expect(sepBy(nat, ',')(fromString("12"))).toEqual(ok([12]));
-  expect(sepBy(nat, ',')(fromString("12,23,34"))).toEqual(ok([12,23,34]));
-  expect(sepBy(nat, ',')(fromString("12,23,34,"))).toEqual(ok([12,23,34]));
+  expect(sepBy(nat, ',')(fromString("12"))).toEqual(ok([12n]));
+  expect(sepBy(nat, ',')(fromString("12,23,34"))).toEqual(ok([12n,23n,34n]));
+  expect(sepBy(nat, ',')(fromString("12,23,34,"))).toEqual(ok([12n,23n,34n]));
 });
 
 it('', () => {
@@ -58,11 +58,11 @@ it('', () => {
 });
 
 it('', () => {
-  expect(int(fromString('12'))).toEqual(ok(12));
-  expect(int(fromString('-12'))).toEqual(ok(-12));
-  expect(int(fromString('+12'))).toEqual(ok(12));
-  expect(int(fromString('- 12'))).toEqual(ok(-12));
-  expect(int(fromString('+ 12'))).toEqual(ok(12));
+  expect(int(fromString('12'))).toEqual(ok(12n));
+  expect(int(fromString('-12'))).toEqual(ok(-12n));
+  expect(int(fromString('+12'))).toEqual(ok(12n));
+  expect(int(fromString('- 12'))).toEqual(ok(-12n));
+  expect(int(fromString('+ 12'))).toEqual(ok(12n));
 });
 
 it('', () => {

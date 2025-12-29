@@ -11,7 +11,7 @@ it('eof fails when input remains', () => {
 });
 
 it('eof succeeds after consuming all input', () => {
-  expect(seq(nat, eof)(fromString("123"))).toEqual(ok([123, null]));
+  expect(seq(nat, eof)(fromString("123"))).toEqual(ok([123n, null]));
 });
 
 it('eof fails when input remains after parsing', () => {

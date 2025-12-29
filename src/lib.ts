@@ -76,7 +76,7 @@ export const some = <T>(parser: parserlike<T>): parser<T[]> =>
 export const digit = range('0', '9');
 
 export const nat = lex(some(digit)).map((val) =>
-  parseInt(val.join("")));
+  BigInt(val.join("")));
 
 export const maybe = <T>(p: parserlike<T>) =>
   toParser((source: stream) => {
