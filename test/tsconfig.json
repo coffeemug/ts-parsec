@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "types": ["bun-types", "bun-types/test-globals"]
+  }
+}
