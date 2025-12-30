@@ -67,22 +67,22 @@ export const lex = <T>(p: parserlike<T>) => toParser((source: stream) => {
     // nested lex call, don't drop more whitespace
     return toParser(p)(source);
   } else {
-    return lexMode('keep_all')((source: stream) => {
-      ws('drop_all')(source);  // lex always drops all ws including newlines
+    const wsMode = source.ws_mode;
+    return lexMode('keep_all', (source: stream) => {
+      ws(wsMode)(source);  // respect the current ws_mode
       return toParser(p)(source);
     })(source);
   }
 });
 
-export const lexMode = (wsMode: ws_mode) =>
-  <T>(p: parserlike<T>) =>
-    toParser((source: stream) => {
-      const prev_ws_mode = source.ws_mode;
-      source.ws_mode = wsMode;
-      const res = toParser(p)(source);
-      source.ws_mode = prev_ws_mode;
-      return res;
-    });
+export const lexMode = <T>(wsMode: ws_mode, p: parserlike<T>) =>
+  toParser((source: stream) => {
+    const prev_ws_mode = source.ws_mode;
+    source.ws_mode = wsMode;
+    const res = toParser(p)(source);
+    source.ws_mode = prev_ws_mode;
+    return res;
+  });
 
 export const ws = (wsMode: 'drop_all' | 'keep_newlines') =>
   toParser((source: stream) => {
