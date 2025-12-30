@@ -1,6 +1,6 @@
 import type { stream } from './stream';
 import type { parser, parserlike } from './base';
-import { err, ok, toParser, lex } from './base';
+import { err, ok, toParser, lex, str } from './base';
 
 export const attempt = <T>(parser: parserlike<T>): parser<T> =>
   toParser((source: stream) => {
@@ -198,3 +198,5 @@ export const anych = (opts?: { but: parserlike<unknown> }) => toParser((source: 
 });
 
 export const eof = not(anych());
+
+export const eol = str('\n');

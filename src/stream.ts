@@ -1,8 +1,10 @@
 
+export type ws_mode = 'keep_all' | 'drop_all' | 'keep_newlines';
+
 export type stream = {
   row: number,
   col: number,
-  drop_ws: boolean,
+  ws_mode: ws_mode,
   next: () => string | null,
   push: () => void,
   pop_continue: () => void,
@@ -20,24 +22,52 @@ class string_stream {
     idx: number,
   }[] = [];
 
-  constructor(public source: string, public drop_ws: boolean = true) {}
+  constructor(public source: string, public ws_mode: ws_mode = 'drop_all') {}
 
   next(): string | null {
     if (this.idx == this.source.length) {
       return null;
     }
-    const ch = this.source[this.idx++];
-    this.col++;
+
+    const ch = this.normalizeNewline(this.source[this.idx++]);
     if (ch == '\n') {
       this.row++;
       this.col = 1;
+    } else {
+      this.col++;
     }
 
-    if (this.drop_ws && ch.trim() === "") {
-      return this.next();
-    } else {
+    if (this.ws_mode === 'keep_all') {
       return ch;
     }
+
+    if (this.ws_mode === 'drop_all' && ch.trim() === '') {
+      return this.next();
+    }
+
+    if (this.ws_mode === 'keep_newlines') {
+      if (ch === '\n') {
+        return ch;
+      }
+      if (ch.trim() === '') {
+        return this.next();
+      }
+    }
+
+    return ch;
+  }
+
+  private normalizeNewline(ch: string) {
+    const peek = () =>
+      this.idx == this.source.length ? null : this.source[this.idx];
+
+    if (ch == '\r') {
+      if (peek() == '\n') {
+        this.idx++;
+      }
+      ch = '\n';
+    }
+    return ch;
   }
 
   push() {
@@ -58,6 +88,6 @@ class string_stream {
   }
 }
 
-export const fromString = (source: string): stream => {
-  return new string_stream(source);
+export const fromString = (source: string, ws_mode: ws_mode = 'drop_all'): stream => {
+  return new string_stream(source, ws_mode);
 }

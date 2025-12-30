@@ -63,40 +63,49 @@ export const str = <T extends string>(match: T): parser<T> =>
   }));
 
 export const lex = <T>(p: parserlike<T>) => toParser((source: stream) => {
-  if (!source.drop_ws) {
-    // this call to lex is nested (i.e. we're in lex mode already)
-    // don't drop more whitespace
+  if (source.ws_mode === 'keep_all') {
+    // nested lex call, don't drop more whitespace
     return toParser(p)(source);
   } else {
-    return keepWs((source: stream) => {
-      ws(source);
+    return lexMode('keep_all')((source: stream) => {
+      ws('drop_all')(source);  // lex always drops all ws including newlines
       return toParser(p)(source);
     })(source);
   }
 });
 
-export const keepWs = <T>(p: parserlike<T>) =>
-  toParser((source: stream) => {
-    const prev_drop_ws = source.drop_ws;
-    source.drop_ws = false;
-    const res = toParser(p)(source);
-    source.drop_ws = prev_drop_ws;
-    return res;
-  });
+export const lexMode = (wsMode: 'keep_all' | 'keep_newlines') =>
+  <T>(p: parserlike<T>) =>
+    toParser((source: stream) => {
+      const prev_ws_mode = source.ws_mode;
+      source.ws_mode = wsMode;
+      const res = toParser(p)(source);
+      source.ws_mode = prev_ws_mode;
+      return res;
+    });
 
-export const ws = toParser((source: stream) => {
-  while (true) {
-    source.push();
-    const ch = source.next();
-    if (ch?.trim() === "") {
+export const ws = (wsMode: 'drop_all' | 'keep_newlines') =>
+  toParser((source: stream) => {
+    while (true) {
+      source.push();
+      const ch = source.next();
+
+      // If we gotta keep newlines and we hit one, return it
+      if (wsMode == 'keep_newlines' && ch == '\n') {
+        source.pop_rollback();
+        break;
+      }
+
+      // If we hit eof or a non-whitespace character, return it
+      if (ch === null || ch.trim() !== '') {
+        source.pop_rollback();
+        break;
+      }
+
       source.pop_continue();
-    } else {
-      source.pop_rollback();
-      break;
     }
-  }
-  return ok({});
-});
+    return ok({});
+  });
 
 /*
   Laziness helper
