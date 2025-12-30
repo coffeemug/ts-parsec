@@ -1,4 +1,4 @@
-import type { stream } from './stream';
+import type { stream, ws_mode } from './stream';
 
 /*
   Result handling
@@ -74,7 +74,7 @@ export const lex = <T>(p: parserlike<T>) => toParser((source: stream) => {
   }
 });
 
-export const lexMode = (wsMode: 'keep_all' | 'keep_newlines') =>
+export const lexMode = (wsMode: ws_mode) =>
   <T>(p: parserlike<T>) =>
     toParser((source: stream) => {
       const prev_ws_mode = source.ws_mode;
