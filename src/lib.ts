@@ -97,7 +97,7 @@ export const upper = range('A', 'Z');
 export const alpha = either(lower, upper);
 export const alnum = either(alpha, digit);
 
-export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' = 'allow'): parser<T[]> =>
+export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' | 'leave' = 'allow'): parser<T[]> =>
   toParser((source: stream) => {
     const res: T[] = [];
 
@@ -109,21 +109,33 @@ export const sepBy = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep
     }
 
     while (true) {
+      source.push();
       const sepres_ = attempt(sep)(source);
       if (sepres_.type == 'err') {
+        source.pop_rollback();
         return trailingSep === 'require' ? err(0, 0, '') : ok(res);
       }
 
       const res_ = attempt(item)(source);
       if (res_.type == 'err') {
-        return trailingSep === 'forbid' ? err(0, 0, '') : ok(res);
+        if (trailingSep === 'forbid') {
+          source.pop_rollback();
+          return err(0, 0, '');
+        } else if (trailingSep === 'leave') {
+          source.pop_rollback();
+          return ok(res);
+        } else {
+          source.pop_continue();
+          return ok(res);
+        }
       } else {
+        source.pop_continue();
         res.push(res_.res);
       }
     }
   });
 
-export const sepBy1 = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' = 'allow'): parser<T[]> =>
+export const sepBy1 = <T, U>(item: parserlike<T>, sep: parserlike<U>, trailingSep: 'allow' | 'forbid' | 'require' | 'leave' = 'allow'): parser<T[]> =>
   toParser((source: stream) => {
     const res = sepBy(item, sep, trailingSep)(source);
     if (res.type == 'err') return res;

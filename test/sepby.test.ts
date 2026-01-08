@@ -35,3 +35,29 @@ it('sepBy1 with trailingSep options', () => {
   expect(sepBy1(nat, ',', 'require')(fromString("12,23"))).toEqual(err(0, 0, ''));
   expect(sepBy1(nat, ',', 'require')(fromString("12,23,"))).toEqual(ok([12n,23n]));
 });
+
+it('sepBy with trailingSep leave', () => {
+  const stream1 = fromString("");
+  expect(sepBy(nat, ',', 'leave')(stream1)).toEqual(ok([]));
+  expect(stream1.next()).toEqual(null);
+
+  const stream2 = fromString("12");
+  expect(sepBy(nat, ',', 'leave')(stream2)).toEqual(ok([12n]));
+  expect(stream2.next()).toEqual(null);
+
+  const stream3 = fromString("12,23,34");
+  expect(sepBy(nat, ',', 'leave')(stream3)).toEqual(ok([12n,23n,34n]));
+  expect(stream3.next()).toEqual(null);
+
+  const stream4 = fromString("12,23,34,");
+  expect(sepBy(nat, ',', 'leave')(stream4)).toEqual(ok([12n,23n,34n]));
+  expect(stream4.next()).toEqual(',');  // trailing separator left on stream
+});
+
+it('sepBy1 with trailingSep leave', () => {
+  expect(sepBy1(nat, ',', 'leave')(fromString(""))).toEqual(err(0, 0, ''));
+
+  const stream1 = fromString("12,23,");
+  expect(sepBy1(nat, ',', 'leave')(stream1)).toEqual(ok([12n,23n]));
+  expect(stream1.next()).toEqual(',');  // trailing separator left on stream
+});
